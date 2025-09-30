@@ -60,14 +60,7 @@ async def login(
         samesite="lax",     # ❗ Захист від CSRF
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES, 
     )
-        
-    # redirect
-    if user.role == "tutor":
-        return RedirectResponse(url="/test/list", status_code=302)
-    else:
-        return RedirectResponse(url="/test/list", status_code=302)
-
-
+    return user
 
 
 # --------------------------------
