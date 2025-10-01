@@ -55,18 +55,18 @@ async def login(
         url = "/test/list"
     else:
          url = "/test/list"
-    red_response = RedirectResponse(url, status_code=302)
+    redirect = RedirectResponse(url, status_code=302)
 
-    # Встановлюємо cookie
-    red_response.set_cookie(
+    # Встановлюємо cookie у відповідь
+    redirect.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,      # ❗ Забороняє доступ з JS
-        secure=True,        # ❗ Передавати лише по HTTPS
+        # secure=True,        # ❗ Передавати лише по HTTPS
         samesite="lax",     # ❗ Захист від CSRF
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES, 
     )
-    return red_response    
+    return redirect    
     
 
 
