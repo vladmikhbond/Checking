@@ -37,10 +37,8 @@ async def get_login(request: Request):
 # Вставляє JWT у HttpOnly cookie
 @router.post("/login")
 async def login(
-    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(get_db),
-    response: Response = None,
 ):
     user = get_authenticated_user(form_data.username, form_data.password, db)
     if not user:
@@ -50,9 +48,17 @@ async def login(
         data={"sub": user.username, "role": user.role},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
+    
+    if user.role == "tutor": 
+        url = "/test/list"
+    elif user.role == "student": 
+        url = "/test/list"
+    else:
+         url = "/test/list"
+    red_response = RedirectResponse(url, status_code=302)
 
     # Встановлюємо cookie
-    response.set_cookie(
+    red_response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,      # ❗ Забороняє доступ з JS
@@ -60,12 +66,8 @@ async def login(
         samesite="lax",     # ❗ Захист від CSRF
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES, 
     )
-        
-    # redirect
-    if user.role == "tutor":
-        return RedirectResponse(url="/test/list", status_code=302)
-    else:
-        return RedirectResponse(url="/test/list", status_code=302)
+    return red_response    
+    
 
 
 
@@ -94,7 +96,7 @@ cookie_scheme = APIKeyCookie(name="access_token")
 def get_current_user(token: str = Security(cookie_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return {"username": payload.get("sub")}
+        return User(username=payload.get("sub"), role=payload.get("role"))
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
