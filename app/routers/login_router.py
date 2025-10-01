@@ -44,10 +44,10 @@ async def login(
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    access_token = create_access_token(
-        data={"sub": user.username, "role": user.role},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    # Створення токену
+    expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    claims = {"sub": user.username, "role": user.role, "exp": datetime.now() + expires_delta}
+    access_token = jwt.encode(claims, SECRET_KEY, algorithm=ALGORITHM)    
     
     if user.role == "tutor": 
         url = "/test/list"
@@ -68,10 +68,6 @@ async def login(
     )
     return redirect    
     
-
-
-
-
 # --------------------------------
 
 # Перевірка користувача
@@ -84,11 +80,6 @@ def get_authenticated_user(username: str, password: str, db: Session):
     pass_is_ok = bcrypt.checkpw(password.encode('utf-8'), user.hashed_password)
     return user if pass_is_ok else None
 
-def create_access_token(data: dict, expires_delta: timedelta):
-    to_encode = data.copy()
-    expire = datetime.now() + expires_delta
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 # 🔑 описуємо джерело токена (cookie)
 cookie_scheme = APIKeyCookie(name="access_token")
