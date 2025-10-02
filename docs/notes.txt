@@ -1,4 +1,5 @@
 TODO
 codereview get_auth_user()
 
-create Checking database
+підтримка тестів
+

@@ -1,11 +1,11 @@
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from .models.pss_models import Ticket
+from .models.models import Base, Ticket
 
 # Створюємо engine (SQLite файл лежить у /data/PSS.db)
 engine = create_engine(
-    "sqlite:////data/PSS.db",
+    "sqlite:////data/Checking.db",
     echo=True,
     connect_args={"check_same_thread": False}  # потрібно для SQLite + багатопоточного доступу
 )
@@ -20,3 +20,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
+if __name__ == "__main__":
+    Base.metadata.create_all(engine)
+
