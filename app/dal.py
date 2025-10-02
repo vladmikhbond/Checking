@@ -21,6 +21,26 @@ def get_db():
     finally:
         db.close()
 
+# ================================================================
+
+engine_pss = create_engine(
+    "sqlite:////data/PSS.db",
+    echo=True,
+    connect_args={"check_same_thread": False}  # потрібно для SQLite + багатопоточного доступу
+)
+
+SessionLocalPss = sessionmaker(autocommit=False, autoflush=False, bind=engine_pss)
+
+def get_db_pss():
+    db: Session = SessionLocalPss()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ================================================================
+
+
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
 

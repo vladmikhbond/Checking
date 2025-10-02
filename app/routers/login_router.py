@@ -11,7 +11,7 @@ from fastapi.security import APIKeyCookie
 from jose import jwt
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from ..dal import get_db  # Функція для отримання сесії БД
+from ..dal import get_db_pss  # Функція для отримання сесії БД
 from ..models.pss_models import User
 import bcrypt
 
@@ -38,7 +38,7 @@ async def get_login(request: Request):
 @router.post("/login")
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(), 
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_pss),
 ):
     user = get_authenticated_user(form_data.username, form_data.password, db)
     if not user:
