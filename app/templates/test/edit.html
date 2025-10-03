@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+
+    <h1>Редагування "{{ test.title }}"</h1>
+    <form method="post" >
+      <label>
+        Назва
+        <input type="text" name="title" value="{{ test.title }}" required>
+      </label>
+
+      <label>
+        Тест
+        <textarea name="body" style="width: 100%" required>{{ test.body }}</textarea>
+      </label>
+
+      <footer class="grid">
+        <button type="submit" >Зберігти</button>
+        <a href="/test/list" role="button" class="secondary">Скасувати</a>
+      </footer>      
+    </form>
+{% endblock %}

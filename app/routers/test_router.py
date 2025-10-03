@@ -48,3 +48,110 @@ async def get_test_list(
    
     tests = [t for t in all_tests if t.username == user.username ] 
     return templates.TemplateResponse("test/list.html", {"request": request, "tests": tests})
+
+# ------- new 
+
+@router.get("/test/new")
+async def get_test_new(
+    request: Request,
+    user: User=Depends(get_current_user)
+):
+    """ 
+    Створення нового теста поточного юзера (викладача). 
+    """
+    test = Test(title="", body="") 
+    return templates.TemplateResponse("test/new.html", {"request": request, "test": test})
+
+
+@router.post("/test/new")
+async def post_test_new(
+    request: Request,
+    title: str = Form(...),
+    body: str = Form(...),
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user)
+):
+    test = Test(
+        title = title,
+        username = user.username, 
+        body = body
+    )
+
+    try:
+        db.add(test)                        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        err_mes = f"Error during a new test adding: {e}"
+        return templates.TemplateResponse("test/new.html", {"request": request, "test": test})
+    return RedirectResponse(url="/test/list", status_code=302)
+
+# ------- edit 
+
+@router.get("/test/edit/{id}")
+async def get_test_edit(
+    id: int, 
+    request: Request, 
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user)
+):
+    """ 
+    Редагування тесту.
+    """
+    test = db.get(Test, id)
+    if not test:
+        return RedirectResponse(url="/test/list", status_code=302)
+    return templates.TemplateResponse("test/edit.html", {"request": request, "test": test})
+
+
+@router.post("/test/edit/{id}")
+async def post_test_edit(
+    id: int,
+    request: Request,
+    title: str = Form(...),
+    body: str = Form(...),
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user)
+):
+    test = db.get(Test, id)
+    if not test:
+        return RedirectResponse(url="/test/list", status_code=302)
+    if test.username != user.username:
+        return RedirectResponse(url="/test/list", status_code=401)
+  
+    test.title = title
+    test.body = body   
+    db.commit()
+    return RedirectResponse(url="/test/list", status_code=302)
+
+# ------- del 
+
+@router.get("/test/del/{id}")
+async def get_test_del(
+    id: int, 
+    request: Request, 
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user)
+):
+    """ 
+    Видалення тесту.
+    """
+    test = db.get(Test, id)
+    if not test:
+        return RedirectResponse(url="/test/list", status_code=302)
+    return templates.TemplateResponse("test/del.html", {"request": request, "test": test})
+
+
+@router.post("/test/del/{id}")
+async def post_test_del(
+    id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user)
+):
+    test = db.get(Test, id)
+    db.delete(test)
+    db.commit()
+    return RedirectResponse(url="/test/list", status_code=302)
+
+

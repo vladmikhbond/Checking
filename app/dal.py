@@ -130,7 +130,8 @@ class Point:
 
 # from models.models import Base, Test, Ticket
 # if __name__ == "__main__":
-#     # Base.metadata.create_all(engine)
+#     Base.metadata.create_all(engine)
+
 #     with SessionLocal() as db:
 #         t1 = Test(title="test1", username="tutor", body=T1)
 #         t2 = Test(title="test2", username="tutor", body=T2)
