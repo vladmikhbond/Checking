@@ -43,7 +43,7 @@ async def get_test_list(
             "../login/login.html", 
             {"request": request, "error": user.role})
         
-    all_tests = [] # TODO db.query(Test).all()
+    all_tests = db.query(Test).all()
 
    
     tests = [t for t in all_tests if t.username == user.username ] 

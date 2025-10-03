@@ -31,7 +31,7 @@ class Question(Base):
     test: Mapped["Test"] = relationship(back_populates="questions")
 
 class Seance(Base):
-    __tablename__ = "sessions"
+    __tablename__ = "seances"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True) 
     test_title: Mapped[str] = mapped_column(String, ForeignKey("tests.title", ondelete="CASCADE"),)
@@ -41,24 +41,21 @@ class Seance(Base):
     stud_filter: Mapped[str] = mapped_column(String, default='')
     # nav
     test: Mapped["Test"] = relationship(back_populates="seances")
-
+    tickets: Mapped[List["Ticket"]] = relationship(back_populates="seance", )
 
 class Ticket(Base):
     __tablename__ = "tickets"
  
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True) 
-    session_id: Mapped[int] = mapped_column(Integer) 
+    seance_id: Mapped[int] = mapped_column(Integer, ForeignKey("seances.id", ondelete="CASCADE"))
     username: Mapped[str] = mapped_column(String)
     test_title: Mapped[str] = mapped_column(String)
-    session_close_time: Mapped[datetime] = mapped_column(DateTime, default=None)
+    seance_close_time: Mapped[datetime] = mapped_column(DateTime, default=None)
     questions_number: Mapped[int] = mapped_column(Integer)
     next_question_number: Mapped[int] = mapped_column(Integer) 
     protocol: Mapped[str] = mapped_column(Text) 
-
-
     #  nav
-
-    session: Mapped["Test"] = relationship(back_populates="tickets")
+    seance: Mapped["Seance"] = relationship(back_populates="tickets")
 
     
 

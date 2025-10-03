@@ -5,6 +5,7 @@
 {% block content %}
     
 <h1>Мої тести</h1>
+<a href="/test/new">Новий тест</a>
 
 {% if tests and tests|length %}
 <table>
@@ -14,7 +15,6 @@
       <td>{{ test.attr }}</td>
       <td>{{ test.title }}</td>
       <td>
-          <a href="/test/copy/{{test.id}}">copy</a> | 
           <a href="/test/edit/{{test.id}}">edit</a> | 
           <a href="/test/del/{{test.id}}">del</a>
       </td>
