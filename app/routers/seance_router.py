@@ -1,4 +1,5 @@
 import os
+from zoneinfo import ZoneInfo
 
 from fastapi.security import OAuth2PasswordRequestForm
 import httpx
@@ -37,7 +38,6 @@ async def get_seance_list(
     Усі сеанси поточного юзера (викладача).
     """
     # return the login page with error message
-    
     if user.role != "tutor":
         return templates.TemplateResponse(
             "../login/login.html", 
@@ -45,7 +45,6 @@ async def get_seance_list(
         
     all_seances = db.query(Seance).all()
 
-   
     seances = [s for s in all_seances if s.username == user.username ] 
     return templates.TemplateResponse("seance/list.html", {"request": request, "seances": seances})
 
@@ -60,9 +59,14 @@ async def get_seance_new(
     """ 
     Створення нового сеансу поточного юзера (викладача). 
     """
-    seance = Seance()  ###########TODO
     tests = db.query(Test).all()
-
+    now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%dT%H:%M")
+    seance = Seance(
+        username = user.username, 
+        open_time = now_str,  
+        open_minutes = 0,
+        stud_filter = ""
+    )
     return templates.TemplateResponse("seance/new.html", {"request": request, "seance": seance, "tests": tests})
 
 
@@ -70,62 +74,84 @@ async def get_seance_new(
 async def post_seance_new(
     request: Request,
     test_id: int = Form(...),
-    
+    open_time: str = Form(...),
+    open_minutes: int = Form(...),
+    stud_filter: str = Form(...),
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
+    dt = datetime.strptime(open_time, "%Y-%m-%dT%H:%M")
+    dt = dt.replace(tzinfo=ZoneInfo("Europe/Kyiv")).astimezone(ZoneInfo("UTC"))
+
     seance = Seance(
         test_id = test_id,
         username = user.username, 
-
+        open_time = dt,
+        open_minutes = open_minutes,
+        stud_filter = stud_filter,
     )
-    return seance
-    # try:
-    #     db.add(seance)                        
-    #     db.commit()
-    # except Exception as e:
-    #     db.rollback()
-    #     err_mes = f"Error during a new seance adding: {e}"
-    #     return templates.TemplateResponse("seance/new.html", {"request": request, "seance": seance})
-    # return RedirectResponse(url="/seance/list", status_code=302)
+    try:
+        db.add(seance)                        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        err_mes = f"Error during a new seance adding: {e}"
+        print(err_mes)
+        tests = db.query(Test).all()
+        return templates.TemplateResponse("seance/new.html", {"request": request, "seance": seance, "tests": tests})
+
+    return RedirectResponse(url="/seance/list", status_code=302)
+
 
 # ------- edit 
 
-@router.get("/test/edit/{id}")
-async def get_test_edit(
+@router.get("/seance/edit/{id}")
+async def get_seance_edit(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
     """ 
-    Редагування тесту.
+    Редагування сеансу.
     """
-    test = db.get(Test, id)
-    if not test:
-        return RedirectResponse(url="/test/list", status_code=302)
-    return templates.TemplateResponse("test/edit.html", {"request": request, "test": test})
+    seance = db.get(Seance, id)
+    dt_str = seance.open_time.astimezone(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%dT%H:%M")
+    seance.open_time = dt_str
+    tests = db.query(Test).all()
+
+    if not seance:
+        return RedirectResponse(url="/seance/list", status_code=302)
+    return templates.TemplateResponse("seance/edit.html", {"request": request, "seance": seance, "tests": tests})
 
 
-@router.post("/test/edit/{id}")
-async def post_test_edit(
+@router.post("/seance/edit/{id}")
+async def post_seance_edit(
     id: int,
     request: Request,
-    title: str = Form(...),
-    body: str = Form(...),
+    test_id: int = Form(...),
+    open_time: str = Form(...),
+    open_minutes: int = Form(...),
+    stud_filter: str = Form(...),
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
-    test = db.get(Test, id)
-    if not test:
-        return RedirectResponse(url="/test/list", status_code=302)
-    if test.username != user.username:
-        return RedirectResponse(url="/test/list", status_code=401)
-  
-    test.title = title
-    test.body = body   
+    seance = db.get(Seance, id)
+    if not seance:
+        return RedirectResponse(url="/seance/list", status_code=302)
+
+    dt = datetime.strptime(open_time, "%Y-%m-%dT%H:%M") \
+        .replace(tzinfo=ZoneInfo("Europe/Kyiv")) \
+        .astimezone(ZoneInfo("UTC"))
+
+    seance.username = user.username  
+    seance.test_id = test_id
+    seance.open_time = dt
+    seance.open_minutes = open_minutes
+    seance.stud_filter = stud_filter
+    
     db.commit()
-    return RedirectResponse(url="/test/list", status_code=302)
+    return RedirectResponse(url="/seance/list", status_code=302)
 
 # ------- del 
 

@@ -18,8 +18,20 @@
         </select>
       </label>
 
+      <label>
+        Open Time
+        <input type="datetime-local" name="open_time" value="{{ seance.open_time|replace(' ', 'T') }}">
+      </label>
 
+      <label>
+        Open Minutes
+        <input type="number" name="open_minutes" value="{{ seance.open_minutes }}">
+      </label>
 
+      <label>
+        Filter
+        <input type="text" name="stud_filter" value="{{ seance.stud_filter }}">
+      </label>
 
 
       <footer class="grid">

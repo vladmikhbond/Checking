@@ -17,7 +17,7 @@ import bcrypt
 
 SECRET_KEY = "super-secret-key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 180
 
 
 
@@ -81,7 +81,7 @@ def get_authenticated_user(username: str, password: str, db: Session):
     return user if pass_is_ok else None
 
 
-# 🔑 описуємо джерело токена (cookie)
+# описуємо джерело токена (cookie)
 cookie_scheme = APIKeyCookie(name="access_token")
 
 def get_current_user(token: str = Security(cookie_scheme)):

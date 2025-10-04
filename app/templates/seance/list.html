@@ -13,8 +13,7 @@
   <tbody>
     {% for seance in seances %}
     <tr>
-      <td>{{ seance.test.title }}</td>
-      <td>{{ seance.id }}</td>
+      <td>{{ seance.test.title }}-{{ seance.id }}</td>
       <td>
           <a href="/seance/edit/{{seance.id}}">edit</a> | 
           <a href="/seance/del/{{seance.id}}">del</a>
