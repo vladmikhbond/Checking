@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    
+<h1>Мої сеанси</h1>
+
+<a href="/seance/new">Новий сеанс</a>
+
+{% if seances and seances|length %}
+<table>
+  <tbody>
+    {% for seance in seances %}
+    <tr>
+      <td>{{ seance.test.title }}</td>
+      <td>{{ seance.id }}</td>
+      <td>
+          <a href="/seance/edit/{{seance.id}}">edit</a> | 
+          <a href="/seance/del/{{seance.id}}">del</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <div>
+    Сеансів немає.
+  </div>
+{% endif %}
+
+{% endblock %}

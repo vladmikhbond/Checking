@@ -1,5 +1,6 @@
 TODO
 codereview get_auth_user()
 
-підтримка тестів
+підтримка сеансів (new, edit, del)
+створення питань у тестах
 

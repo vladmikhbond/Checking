@@ -22,7 +22,7 @@ class Test(Base):
 class Question(Base):
     __tablename__ = "questions"
     
-    test_id: Mapped[str] = mapped_column(ForeignKey("tests.id", ondelete="CASCADE"), primary_key=True)  # назва
+    test_id: Mapped[int] = mapped_column(ForeignKey("tests.id", ondelete="CASCADE"), primary_key=True)  # назва
     number: Mapped[int] = mapped_column(Integer, primary_key=True)
     topic: Mapped[str] = mapped_column(String)
     kind: Mapped[str] = mapped_column(String)              # '!', '#' 
@@ -35,8 +35,8 @@ class Seance(Base):
     __tablename__ = "seances"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True) 
-    test_id: Mapped[str] = mapped_column(String, ForeignKey("tests.id", ondelete="CASCADE"),)
-    tutor_name: Mapped[str] = mapped_column(String)
+    test_id: Mapped[int] = mapped_column(ForeignKey("tests.id", ondelete="CASCADE"),)
+    username: Mapped[str] = mapped_column(String)
     open_time: Mapped[datetime] = mapped_column(DateTime, default=None)
     open_minutes: Mapped[int] = mapped_column(Integer, default=0)
     stud_filter: Mapped[str] = mapped_column(String, default='')

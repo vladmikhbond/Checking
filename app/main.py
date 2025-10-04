@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
-from .routers import login_router, test_router
+from .routers import login_router, test_router, seance_router
 
 from fastapi.staticfiles import StaticFiles
 
@@ -12,5 +12,5 @@ app.add_middleware(SessionMiddleware, secret_key="supersecret")
 
 app.include_router(login_router.router, tags=["login"])
 app.include_router(test_router.router, tags=["test"])
-
+app.include_router(seance_router.router, tags=["seance"])
 
