@@ -4,22 +4,25 @@
 
 {% block content %}
 
-    <h1>Видалння "{{ test.title }}"</h1>
+    <h1>Видалння "{{ seance.test.title }}-{{ seance.id }}"</h1>
     <form method="post" >
-      <input type="hidden" name="id" value="{{ test.id }}" >
       <label>
-        Назва
-        <input type="text" name="title" value="{{ test.title }}" readonly>
+        Open Time
+        <input type="datetime-local" name="open_time" value="{{ seance.open_time|replace(' ', 'T') }}" readonly>
       </label>
 
       <label>
-        Тест
-        <textarea name="body" style="width: 100%" readonly>{{ test.body }}</textarea>
+        Open Minutes
+        <input type="number" name="open_minutes" value="{{ seance.open_minutes }}" readonly>
       </label>
 
+      <label>
+        Filter
+        <input type="text" name="stud_filter" value="{{ seance.stud_filter }}" readonly>
+      </label>
       <footer class="grid">
         <button type="submit" >Видалити</button>
-        <a href="/test/list" role="button" class="secondary">Скасувати</a>
+        <a href="/seance/list" role="button" class="secondary">Скасувати</a>
       </footer>      
     </form>
 {% endblock %}

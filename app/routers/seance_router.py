@@ -155,32 +155,32 @@ async def post_seance_edit(
 
 # ------- del 
 
-@router.get("/test/del/{id}")
-async def get_test_del(
+@router.get("/seance/del/{id}")
+async def get_seance_del(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
     """ 
-    Видалення тесту.
+    Видалення сеансу.
     """
-    test = db.get(Test, id)
-    if not test:
-        return RedirectResponse(url="/test/list", status_code=302)
-    return templates.TemplateResponse("test/del.html", {"request": request, "test": test})
+    seance = db.get(Seance, id)
+    if not seance:
+        return RedirectResponse(url="/seance/list", status_code=302)
+    return templates.TemplateResponse("seance/del.html", {"request": request, "seance": seance})
 
 
-@router.post("/test/del/{id}")
-async def post_test_del(
+@router.post("/seance/del/{id}")
+async def post_seance_del(
     id: int,
     request: Request,
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
-    test = db.get(Test, id)
-    db.delete(test)
+    seance = db.get(Seance, id)
+    db.delete(seance)
     db.commit()
-    return RedirectResponse(url="/test/list", status_code=302)
+    return RedirectResponse(url="/seance/list", status_code=302)
 
 
