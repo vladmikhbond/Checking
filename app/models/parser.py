@@ -1,15 +1,19 @@
-from ..models import Question
+
+from ..models.models import Question
 import re
 
-def parse_test(string: str)->list[Question]:
-   RE = r"^=(.*)"
-   arr = re.split(RE, string, flags=re.MULTILINE)
-   arr = [x.strip() for x in arr if x.strip() != ""]
-   pairs = zip(arr[0::2], arr[1::2])    # [(topicName, topicBody)]
-   questions = []
-   for name, body in pairs:
-      questions.extend(parse_topic_body(name, body))
-   return questions 
+def parse_test_body(string: str)->list[Question]:
+    RE = r"^=(.*)"
+    arr = re.split(RE, string, flags=re.MULTILINE)
+    arr = [x.strip() for x in arr if x.strip() != ""]
+    pairs = zip(arr[0::2], arr[1::2])    # [(topicName, topicBody)]
+    questions = []
+    for name, body in pairs:
+        topic_questions = parse_topic_body(name, body)
+        questions.extend(topic_questions)
+    for i, question in enumerate(questions):
+        question.number = i    
+    return questions 
    
 
 def parse_topic_body(name, body)->list[Question]:
@@ -35,7 +39,7 @@ if (__name__ == "__main__"):
     x = parse_test(T)
     print(x)
 
-T = """
+    T = """
 
 =класи
 

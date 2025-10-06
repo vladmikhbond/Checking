@@ -16,6 +16,9 @@ from app.models.models import Test
 from app.routers.login_router import get_current_user
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
+from ..models.models import Question
+from ..models.parser import parse_test_body
+
 import bcrypt
 
 
@@ -71,14 +74,17 @@ async def post_test_new(
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
+    
+    questions: list[Question] = parse_test_body(body) #TODO verify
     test = Test(
         title = title,
         username = user.username, 
-        body = body
+        body = body,
+        questions = questions,
+        seances = []
     )
-
     try:
-        db.add(test)                        
+        db.add(test) 
         db.commit()
     except Exception as e:
         db.rollback()
