@@ -70,15 +70,27 @@ async def login(
     
 # --------------------------------
 
-# Перевірка користувача
+
 def get_authenticated_user(username: str, password: str, db: Session):
+    """
+    Перевірка користувача
+    """
     user = db.get(User, username)
+    if user is None:
+        return None
+
     ### на той випадок, якщо в базу вставляли юзера вручну
-    if isinstance(user.hashed_password, str):
-        user.hashed_password = user.hashed_password.encode('utf-8')
-    ###    
-    pass_is_ok = bcrypt.checkpw(password.encode('utf-8'), user.hashed_password)
-    return user if pass_is_ok else None
+    hashed_password = user.hashed_password.encode('utf-8') \
+        if isinstance(user.hashed_password, str) \
+        else user.hashed_password
+     
+    try:
+        if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
+            return user
+    except Exception:
+        return None
+
+    return None
 
 
 # описуємо джерело токена (cookie)
@@ -90,13 +102,4 @@ def get_current_user(token: str = Security(cookie_scheme)):
         return User(username=payload.get("sub"), role=payload.get("role"))
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-
-
-
-
-#  ------------------------- 👤 Захищений маршрут
-@router.get("/me")
-async def read_me(user=Depends(get_current_user)):
-    return user
 

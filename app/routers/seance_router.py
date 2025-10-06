@@ -1,24 +1,17 @@
-import os
-from zoneinfo import ZoneInfo
-
-from fastapi.security import OAuth2PasswordRequestForm
-import httpx
-
 from fastapi import APIRouter, Depends, HTTPException, Request, Form, Response, Security
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import APIKeyCookie
 
 from jose import jwt
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.models.models import Test, Seance
 from app.routers.login_router import get_current_user
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
-import bcrypt
-
+from ..utils import str_to_time, time_to_str
 
 
 # шаблони Jinja2
@@ -60,10 +53,9 @@ async def get_seance_new(
     Створення нового сеансу поточного юзера (викладача). 
     """
     tests = db.query(Test).all()
-    now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%dT%H:%M")
     seance = Seance(
         username = user.username, 
-        open_time = now_str,  
+        open_time = time_to_str(datetime.now()),  
         open_minutes = 0,
         stud_filter = ""
     )
@@ -80,13 +72,10 @@ async def post_seance_new(
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user)
 ):
-    dt = datetime.strptime(open_time, "%Y-%m-%dT%H:%M")
-    dt = dt.replace(tzinfo=ZoneInfo("Europe/Kyiv")).astimezone(ZoneInfo("UTC"))
-
     seance = Seance(
         test_id = test_id,
         username = user.username, 
-        open_time = dt,
+        open_time = str_to_time(open_time),
         open_minutes = open_minutes,
         stud_filter = stud_filter,
     )
@@ -116,8 +105,7 @@ async def get_seance_edit(
     Редагування сеансу.
     """
     seance = db.get(Seance, id)
-    dt_str = seance.open_time.astimezone(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%dT%H:%M")
-    seance.open_time = dt_str
+    seance.open_time = time_to_str(seance.open_time)
     tests = db.query(Test).all()
 
     if not seance:
@@ -140,13 +128,9 @@ async def post_seance_edit(
     if not seance:
         return RedirectResponse(url="/seance/list", status_code=302)
 
-    dt = datetime.strptime(open_time, "%Y-%m-%dT%H:%M") \
-        .replace(tzinfo=ZoneInfo("Europe/Kyiv")) \
-        .astimezone(ZoneInfo("UTC"))
-
     seance.username = user.username  
     seance.test_id = test_id
-    seance.open_time = dt
+    seance.open_time = str_to_time(open_time)
     seance.open_minutes = open_minutes
     seance.stud_filter = stud_filter
     
