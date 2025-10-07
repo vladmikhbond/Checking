@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    
+<h1>Мої тести</h1>
+
+<a href="/test/new">Новий тест</a>
+
+{% if tests and tests|length %}
+<table>
+  <tbody>
+    {% for test in tests %}
+    <tr>
+      <td>{{ test.attr }}</td>
+      <td>{{ test.title }}</td>
+      <td>
+          <a href="/test/edit/{{test.id}}">edit</a> | 
+          <a href="/test/del/{{test.id}}">del</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <div>
+    Тестів немає.
+  </div>
+{% endif %}
+
+{% endblock %}

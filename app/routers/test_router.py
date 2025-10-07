@@ -123,11 +123,19 @@ async def post_test_edit(
     if not test:
         return RedirectResponse(url="/test/list", status_code=302)
     if test.username != user.username:
-        return RedirectResponse(url="/test/list", status_code=401)
-  
+        return RedirectResponse(url="/test/list", status_code=403)
+ 
     test.title = title
-    test.body = body   
+
+    if test.body != body:
+        test.body = body  
+        for q in test.questions:
+            db.delete(q)
+        test.questions = parse_test_body(body)
+
     db.commit()
+
+
     return RedirectResponse(url="/test/list", status_code=302)
 
 # ------- del 
@@ -145,6 +153,9 @@ async def get_test_del(
     test = db.get(Test, id)
     if not test:
         return RedirectResponse(url="/test/list", status_code=302)
+    if test.username != user.username:
+        return RedirectResponse(url="/test/list", status_code=403)
+    
     return templates.TemplateResponse("test/del.html", {"request": request, "test": test})
 
 
@@ -156,8 +167,11 @@ async def post_test_del(
     user: User=Depends(get_current_user)
 ):
     test = db.get(Test, id)
+    for q in test.questions:
+        db.delete(q)
+    for s in test.seances:
+        db.delete(s)
+
     db.delete(test)
     db.commit()
     return RedirectResponse(url="/test/list", status_code=302)
-
-

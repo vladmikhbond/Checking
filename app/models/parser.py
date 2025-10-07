@@ -12,7 +12,7 @@ def parse_test_body(string: str)->list[Question]:
         topic_questions = parse_topic_body(name, body)
         questions.extend(topic_questions)
     for i, question in enumerate(questions):
-        question.number = i    
+        question.number = i + 1  
     return questions 
    
 
