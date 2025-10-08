@@ -4,28 +4,23 @@
 
 {% block content %}
     
-<h1>Мої тести</h1>
+<h1>Відкрито для проходження</h1>
 
-<a href="/test/new">Новий тест</a>
 
-{% if tests and tests|length %}
-<table>
-  <tbody>
-    {% for test in tests %}
-    <tr>
-      <td>{{ test.attr }}</td>
-      <td>{{ test.title }}</td>
-      <td>
-          <a href="/test/edit/{{test.id}}">edit</a> | 
-          <a href="/test/del/{{test.id}}">del</a>
-      </td>
-    </tr>
+
+{% if seances and seances|length %}
+<ol>
+  
+    {% for seance in seances %}
+    <li>
+      <a href="/check/run/{{seance.id}}">{{ seance.test.title }}-{{ seance.id }}</a>
+    </li>
     {% endfor %}
-  </tbody>
-</table>
+  
+</tol>
 {% else %}
   <div>
-    Тестів немає.
+    Сеансів немає.
   </div>
 {% endif %}
 
