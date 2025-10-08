@@ -6,10 +6,8 @@
     
 <h1>Відкрито для проходження</h1>
 
-
-
 {% if seances and seances|length %}
-<ol>
+<ul>
   
     {% for seance in seances %}
     <li>
@@ -17,7 +15,7 @@
     </li>
     {% endfor %}
   
-</tol>
+</ul>
 {% else %}
   <div>
     Сеансів немає.

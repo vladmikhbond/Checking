@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    
+<h2>Test</h2>
+
+<pre>{{question.text}}</pre>
+
+<form method="post" >
+  <ul>
+      {% set type = "radio" if question.kind == "!" else "checkbox" %}
+      {% for n, answer in answers %}
+      <li>
+        <input type="{{type}}"  name="qqq" value="{{n}}" /> {{answer[1:]}}  
+      </li>
+      {% endfor %}
+  </ul>
+   <div>
+      <button type="submit">Next</button>
+   </div>
+</form>
+
+{% endblock %}

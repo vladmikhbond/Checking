@@ -27,9 +27,9 @@ def parse_topic_body(name, body)->list[Question]:
    
 def parse_question(kind, question) -> tuple[str, str, str]:
    RE = r"^[^+^-]*"
-   m = re.match(RE, question, flags=re.MULTILINE)
-   text = question[0:m.span()[1]]
-   answers = question[m.span()[1]::]
+   match = re.match(RE, question, flags=re.MULTILINE)
+   text = question[0:match.span()[1]].strip()
+   answers = question[match.span()[1]::].strip()
    return kind, text, answers
 
 

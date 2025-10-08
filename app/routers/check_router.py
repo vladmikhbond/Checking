@@ -1,4 +1,5 @@
 import re
+import itertools as it
 from fastapi import APIRouter, Depends, HTTPException, Request, Form, Response, Security
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -44,6 +45,8 @@ async def get_check_topen_list(
 
     return templates.TemplateResponse("check/open_list.html", {"request": request, "seances": seances})
 
+# --------------------------- run 
+
 @router.get("/check/run/{seance_id}")
 async def get_to_test(
     seance_id: int,
@@ -79,8 +82,50 @@ async def get_to_test(
     test = db.get(Test, seance.test_id)
     if not test:
         raise HTTPException(500, "несподівано Тест зник!!!")
-    questions = filter(lambda q: q.number == ticket.next_question_number,  test.questions)
-    question = next(iter(questions))
-    return question
 
-    return templates.TemplateResponse("check/run.html", {"request": request, "question": question})
+    questions = filter(lambda q: q.number == ticket.next_question_number,  test.questions)
+    question = next(questions)
+    answers = enumerate(question.answers.split('\n'), start=1)
+
+    return templates.TemplateResponse("check/run.html", 
+        {"request": request, "question": question, "answers": answers})
+
+@router.post("/check/run/{seance_id}")
+async def get_to_test(
+    seance_id: int,
+    request: Request, 
+    # qqq: int = Form(...),
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user) 
+):
+    form = await request.form()
+    qqq = form.getlist('qqq')   
+
+
+    seance = db.get(Seance, seance_id)
+    ticket = [t for t in seance.tickets if t.username == user.username][0]
+    # чи не прострочений тікет
+    if ticket.seance_close_time < datetime.now():
+        raise HTTPException(403, "Час сплив.")
+    
+    # TODO зберегти відповідь
+    ticket.protocol += f"{qqq}\n"    
+    ticket.next_question_number += 1 
+    db.commit()
+
+    # чи не скінчилися питанняя тесту
+    if ticket.next_question_number > ticket.number_of_questions:
+        raise HTTPException(403, "скінчилися питанняя тесту.")
+
+
+    # знайти чергове питання і його відповіді
+    test = db.get(Test, seance.test_id)
+    if not test:
+        raise HTTPException(500, "несподівано Тест зник!!!")
+
+    questions = filter(lambda q: q.number == ticket.next_question_number,  test.questions)
+    question = next(questions)
+    answers = enumerate(question.answers.split('\n'), start=1)
+
+    return templates.TemplateResponse("check/run.html", 
+        {"request": request, "question": question, "answers": answers})
