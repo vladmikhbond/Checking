@@ -11,7 +11,7 @@ from app.models.models import Test, Seance
 from app.routers.login_router import get_current_user
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
-from ..utils import str_to_time, time_to_str
+from ..models.utils import str_to_time, time_to_str
 
 
 # шаблони Jinja2

@@ -2,10 +2,22 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+
+CON_STR = "sqlite:////data/CHECKING.db"
+
+# Підтримка foreign keys для SQLite
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
 
 # Створюємо engine (SQLite файл лежить у /data/PSS.db)
 engine = create_engine(
-    "sqlite:////data/CHE.db",
+    CON_STR,
     echo=True,
     connect_args={"check_same_thread": False}  # потрібно для SQLite + багатопоточного доступу
 )
@@ -86,23 +98,13 @@ class Point:
 """
 T2 = """
 
-=класи
+=фруктии
 
-!Оберіть вірне
+#Оберіть фрукти
 
-class Point:
-    x = 0
-    y = 0 	
-
-    def __init__(self):
-        self.x = 0
-        self.z = 0
-
-+в коді визначено 3 атрибути класу і 2 атрибути екземпляру
--в коді визначено 2 атрибути класу і 2 атрибути екземпляру
--в коді визначено 1 атрибут класу і 4 атрибути екземпляру
--в коді визначено 2 атрибути класу і 3 атрибути екземпляру
-
++apple
+-bottle
++cherry"
 
 ! За замовчанням метод __str__() ...
 
@@ -132,9 +134,3 @@ class Point:
 # if __name__ == "__main__":
 #     Base.metadata.create_all(engine)
 
-#     with SessionLocal() as db:
-#         t1 = Test(title="test1", username="tutor", body=T1)
-#         t2 = Test(title="test2", username="tutor", body=T2)
-#         db.add(t1)
-#         db.add(t2)
-#         db.commit()

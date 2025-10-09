@@ -13,7 +13,7 @@
       {% set type = "radio" if question.kind == "!" else "checkbox" %}
       {% for n, answer in answers %}
       <li>
-        <input type="{{type}}"  name="qqq" value="{{n}}" /> {{answer[1:]}}  
+        <input type="{{type}}"  name="choice" value="{{n}}" /> {{answer[1:]}}  
       </li>
       {% endfor %}
   </ul>

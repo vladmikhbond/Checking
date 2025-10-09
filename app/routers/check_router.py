@@ -1,4 +1,4 @@
-import re
+import re, random
 import itertools as it
 from fastapi import APIRouter, Depends, HTTPException, Request, Form, Response, Security
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -7,16 +7,16 @@ from fastapi.templating import Jinja2Templates
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
-from ..models.models import Test, Seance, Ticket
-from app.routers.login_router import get_current_user
-from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
+from ..models.utils import result_in_proc
+from ..models.models import Test, Seance, Ticket
+from ..dal import get_db  # Функція для отримання сесії БД
 
+from .login_router import get_current_user
 
 SECRET_KEY = "super-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 
 
 # шаблони Jinja2
@@ -72,11 +72,17 @@ async def get_to_test(
         db.commit()
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
-        raise HTTPException(403, "Час сплив.")
+        vm = {"title": f"{seance.test.title} - {seance.id}", 
+              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "reason": "Час сплив."}
+        return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # чи не скінчилися питанняя тесту
     if ticket.next_question_number > ticket.number_of_questions:
-        raise HTTPException(403, "скінчилися питанняя тесту.")
+        vm = {"title": f"{seance.test.title} - {seance.id}", 
+              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "reason": "Тест завершений."}
+        return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # знайти чергове питання
     test = db.get(Test, seance.test_id)
@@ -85,37 +91,44 @@ async def get_to_test(
 
     questions = filter(lambda q: q.number == ticket.next_question_number,  test.questions)
     question = next(questions)
-    answers = enumerate(question.answers.split('\n'), start=1)
+    answers = list(enumerate(question.answers.split('\n'), start=1))
+    random.shuffle(answers)
 
     return templates.TemplateResponse("check/run.html", 
         {"request": request, "question": question, "answers": answers})
+
 
 @router.post("/check/run/{seance_id}")
 async def get_to_test(
     seance_id: int,
     request: Request, 
-    # qqq: int = Form(...),
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user) 
 ):
     form = await request.form()
-    qqq = form.getlist('qqq')   
+    choice = form.getlist('choice')   
 
 
     seance = db.get(Seance, seance_id)
     ticket = [t for t in seance.tickets if t.username == user.username][0]
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
-        raise HTTPException(403, "Час сплив.")
+        vm = {"title": f"{seance.test.title} - {seance.id}", 
+              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "reason": "Час сплив."}
+        return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # TODO зберегти відповідь
-    ticket.protocol += f"{qqq}\n"    
+    ticket.protocol += f"{choice}\n"    
     ticket.next_question_number += 1 
     db.commit()
 
     # чи не скінчилися питанняя тесту
     if ticket.next_question_number > ticket.number_of_questions:
-        raise HTTPException(403, "скінчилися питанняя тесту.")
+        vm = {"title": f"{seance.test.title} - {seance.id}", 
+              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "reason": "Тест завершений."}
+        return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
 
 
     # знайти чергове питання і його відповіді
@@ -125,7 +138,8 @@ async def get_to_test(
 
     questions = filter(lambda q: q.number == ticket.next_question_number,  test.questions)
     question = next(questions)
-    answers = enumerate(question.answers.split('\n'), start=1)
+    answers = list(enumerate(question.answers.split('\n'), start=1))
+    random.shuffle(answers)
 
     return templates.TemplateResponse("check/run.html", 
         {"request": request, "question": question, "answers": answers})

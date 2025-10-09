@@ -52,7 +52,7 @@ async def login(
     if user.role == "tutor": 
         url = "/test/list"
     elif user.role == "student": 
-        url = "/test/list"
+        url = "/check/open_list"
     else:
          url = "/test/list"
     redirect = RedirectResponse(url, status_code=302)

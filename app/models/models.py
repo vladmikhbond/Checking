@@ -1,4 +1,4 @@
-""" All models for PSS.db """
+
 from datetime import datetime, timedelta
 from typing import List
 from sqlalchemy import ForeignKey, String, DateTime, Integer, Text, LargeBinary
@@ -16,8 +16,8 @@ class Test(Base):
     username: Mapped[str] = mapped_column(String)
     body: Mapped[str] = mapped_column(String)
     # nav
-    questions: Mapped[List["Question"]] = relationship(back_populates="test")
-    seances: Mapped[List["Seance"]] = relationship(back_populates="test")
+    questions: Mapped[List["Question"]] = relationship(back_populates="test", cascade="all, delete-orphan")
+    seances: Mapped[List["Seance"]] = relationship(back_populates="test", cascade="all, delete-orphan")
     
 class Question(Base):
     __tablename__ = "questions"
@@ -42,7 +42,7 @@ class Seance(Base):
     stud_filter: Mapped[str] = mapped_column(String, default='')
     # nav
     test: Mapped["Test"] = relationship(back_populates="seances")
-    tickets: Mapped[List["Ticket"]] = relationship(back_populates="seance", )
+    tickets: Mapped[List["Ticket"]] = relationship(back_populates="seance", cascade="all, delete-orphan")
 
 class Ticket(Base):
     __tablename__ = "tickets"
