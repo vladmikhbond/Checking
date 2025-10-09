@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    
+<h1>{{seance.title}}</h1>
+
+
+
+{% if seance.tickets and seance.tickets|length %}
+<table>
+  <tbody>
+    {% for ticket in seance.tickets %}
+    <tr>
+      <td>{{ ticket.username }}</td>
+      
+      <td>
+          <a href="/ticket/del/{{ticket.id}}">del</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <div>
+    Результатів немає.
+  </div>
+{% endif %}
+
+{% endblock %}

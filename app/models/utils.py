@@ -19,13 +19,14 @@ def str_to_time(s: str) -> datetime:
 
 #---------------------------------------------------------
 
-def result_in_proc(protocol: str, questions: list[Question]) -> int:
+def result_in_procents(protocol: str, questions: list[Question]) -> int:
     sum = 0
     prot_arr = protocol.strip().replace("'", "").split('\n')  # ["[1]", "[4]", "[1, 3]"]
     questions.sort(key=lambda q: q.number)
     n = len(prot_arr)
     for i in range(n):
-        user_choice = prot_arr[i]                             # "[1, 3]"
+        record = prot_arr[i]                                  # "[1, 3];120"
+        user_choice = record.split(';')[0]                    # "[1, 3]"
         user_set = set(json.loads(user_choice))               # {1, 3} 
 
         author_set:set = set(); 

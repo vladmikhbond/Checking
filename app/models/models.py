@@ -43,6 +43,10 @@ class Seance(Base):
     # nav
     test: Mapped["Test"] = relationship(back_populates="seances")
     tickets: Mapped[List["Ticket"]] = relationship(back_populates="seance", cascade="all, delete-orphan")
+    #
+    @property
+    def title(self):
+        return f"{self.test.title}-{self.id}"
 
 class Ticket(Base):
     __tablename__ = "tickets"

@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from ..models.pss_models import User
-from ..models.utils import result_in_proc
+from ..models.utils import result_in_procents
 from ..models.models import Test, Seance, Ticket
 from ..dal import get_db  # Функція для отримання сесії БД
 
@@ -24,7 +24,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter()
 
-# ----------------------- list
+# ----------------------- list of open seances
 
 @router.get("/check/open_list")
 async def get_check_topen_list(
@@ -73,14 +73,14 @@ async def get_to_test(
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Час сплив."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # чи не скінчилися питанняя тесту
     if ticket.next_question_number > ticket.number_of_questions:
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Тест завершений."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
@@ -105,28 +105,29 @@ async def get_to_test(
     db: Session = Depends(get_db),
     user: User=Depends(get_current_user) 
 ):
-    form = await request.form()
-    choice = form.getlist('choice')   
-
 
     seance = db.get(Seance, seance_id)
     ticket = [t for t in seance.tickets if t.username == user.username][0]
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Час сплив."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # TODO зберегти відповідь
-    ticket.protocol += f"{choice}\n"    
+    form = await request.form()
+    choice = form.getlist('choice')      #  "['1', '4', '3']"
+    seconds = (datetime.now() - seance.open_time).seconds
+
+    ticket.protocol += f"{choice};{seconds}\n"    # "['1', '4', '3'];125\n"
     ticket.next_question_number += 1 
     db.commit()
 
     # чи не скінчилися питанняя тесту
     if ticket.next_question_number > ticket.number_of_questions:
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_proc(ticket.protocol, seance.test.questions),    ## ???
+              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Тест завершений."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
 
