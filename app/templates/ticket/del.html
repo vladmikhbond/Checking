@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    <h1>Видалення тікету"{{ ticket.username }}"</h1>
+    <form method="post" >
+      <label>
+        Протокол
+        <textarea name="body" style="width: 100%" readonly>{{ ticket.protokol }}</textarea>
+      </label>
+
+      <footer class="grid">
+        <button type="submit" >Видалити</button>
+        <a href="/ticket/list" role="button" class="secondary">Скасувати</a>
+      </footer>      
+    </form>
+{% endblock %}
