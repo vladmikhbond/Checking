@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    
+<h2>{{ ticket.username }}  {{ ticket.seance.title }} {{percentage}}%</h2>
+{% for r in results %}
+    <pre> {{r.quest_text}} </pre>
+    {% for i in range(r.a_sign|length) %}
+        <div> {{r.a_sign[i]}} : {{r.u_sign[i]}}  {{r.answers[i]}}</div>
+    {% endfor%}
+
+{% endfor%}
+
+
+{% endblock %}

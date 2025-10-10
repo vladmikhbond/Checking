@@ -13,7 +13,10 @@
   <tbody>
     {% for ticket in seance.tickets %}
     <tr>
-      <td>{{ ticket.username }}</td>
+      <td>
+      <a href="/ticket/result/{{ticket.id}}">{{ ticket.username }}</a>
+        
+      </td>
       
       <td>
           <a href="/ticket/del/{{ticket.id}}">del</a>

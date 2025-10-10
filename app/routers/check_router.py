@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from ..models.pss_models import User
-from ..models.utils import result_in_procents
+from ..models.utils import test_result
 from ..models.models import Test, Seance, Ticket
 from ..dal import get_db  # Функція для отримання сесії БД
 
@@ -56,31 +56,33 @@ async def get_to_test(
 ):
     seance = db.get(Seance, seance_id)
     tickets = [t for t in seance.tickets if t.username == user.username]
-    # ticket exists
+    # ticket exists 
     if len(tickets) > 0:
         ticket = tickets[0]
     else:
+        # new ticket
+        seconds = (datetime.now() - seance.open_time).seconds
         ticket = Ticket(
             seance_id = seance.id,
             username = user.username,
             seance_close_time = seance.open_time + timedelta(minutes=seance.open_minutes),
             number_of_questions = len(seance.test.questions),
             next_question_number = 1,
-            protocol = ""
+            protocol =f"{seconds}\n"  
         )
         db.add(ticket)
         db.commit()
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
+              "result": test_result(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Час сплив."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # чи не скінчилися питанняя тесту
     if ticket.next_question_number > ticket.number_of_questions:
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
+              "result": test_result(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Тест завершений."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
@@ -88,7 +90,6 @@ async def get_to_test(
     test = db.get(Test, seance.test_id)
     if not test:
         raise HTTPException(500, "несподівано Тест зник!!!")
-
     questions = filter(lambda q: q.number == ticket.next_question_number,  test.questions)
     question = next(questions)
     answers = list(enumerate(question.answers.split('\n'), start=1))
@@ -111,23 +112,24 @@ async def get_to_test(
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
+              "result": test_result(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Час сплив."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
     
     # TODO зберегти відповідь
     form = await request.form()
     choice = form.getlist('choice')      #  "['1', '4', '3']"
+    focuse_lost = form.get('focuse_lost', '0')
     seconds = (datetime.now() - seance.open_time).seconds
 
-    ticket.protocol += f"{choice};{seconds}\n"    # "['1', '4', '3'];125\n"
+    ticket.protocol += f"{choice};{seconds};{focuse_lost}\n"    # "['1', '4', '3'];125\n"
     ticket.next_question_number += 1 
     db.commit()
 
     # чи не скінчилися питанняя тесту
     if ticket.next_question_number > ticket.number_of_questions:
         vm = {"title": f"{seance.test.title} - {seance.id}", 
-              "result": result_in_procents(ticket.protocol, seance.test.questions),    ## ???
+              "percentage": test_result(ticket.protocol, seance.test.questions)[0],    ## ???
               "reason": "Тест завершений."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
 

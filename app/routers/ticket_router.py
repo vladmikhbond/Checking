@@ -11,7 +11,7 @@ from ..models.models import Test, Seance, Ticket
 from app.routers.login_router import get_current_user
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
-from ..models.utils import str_to_time, time_to_str
+from ..models.utils import test_result
 
 
 # шаблони Jinja2
@@ -76,4 +76,32 @@ async def post_ticket_del(
     db.delete(ticket)
     db.commit()
     return RedirectResponse(url=f"/ticket/list/{ticket.seance_id}", status_code=302)
+
+# -------------------------- result  
+
+@router.get("/ticket/result/{id}")
+async def get_ticket_result(
+    id: int, 
+    request: Request, 
+    db: Session = Depends(get_db),
+    user: User=Depends(get_current_user)
+):
+    """ 
+    Результат складання тесту.
+    """
+    # return the login page with error message
+    if user.role != "tutor":
+        return templates.TemplateResponse(
+            "../login/login.html", 
+            {"request": request, "error": user.role})
+
+    ticket = db.get(Ticket, id)
+    if not ticket:
+        return RedirectResponse(url=f"/ticket/list/{ticket.seance_id}", status_code=302)
+    
+    test = db.get(Test, ticket.seance.test_id)
+    percentage, results = test_result(ticket.protocol, test.questions)
+   
+    return templates.TemplateResponse("ticket/result.html", {
+        "request": request, "ticket": ticket, "percentage": percentage, "results": results})
 
