@@ -165,10 +165,6 @@ async def post_test_del(
     user: User=Depends(get_current_user)
 ):
     test = db.get(Test, id)
-    # for q in test.questions:
-    #     db.delete(q)
-    # for s in test.seances:
-    #     db.delete(s)
 
     db.delete(test)
     db.commit()

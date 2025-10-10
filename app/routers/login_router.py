@@ -103,3 +103,8 @@ def get_current_user(token: str = Security(cookie_scheme)):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
+def get_current_tutor(token: str = Security(cookie_scheme)):
+    user = get_current_user(token)
+    if user.role != "tutor":
+        raise HTTPException(status_code=401, detail="You are not a tutor.")
+    return user
