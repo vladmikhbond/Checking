@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.models.models import Test
-from app.routers.login_router import get_current_user
+from app.routers.login_router import get_current_tutor
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
 from ..models.models import Question
@@ -34,17 +34,17 @@ router = APIRouter()
 async def get_test_list(
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Усі тести поточного юзера (викладача).
     """
-    # return the login page with error message
+    # # return the login page with error message
     
-    if user.role != "tutor":
-        return templates.TemplateResponse(
-            "../login/login.html", 
-            {"request": request, "error": user.role})
+    # if user.role != "tutor":
+    #     return templates.TemplateResponse(
+    #         "../login/login.html", 
+    #         {"request": request, "error": user.role})
         
     all_tests = db.query(Test).all()
 
@@ -57,7 +57,7 @@ async def get_test_list(
 @router.get("/test/new")
 async def get_test_new(
     request: Request,
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Створення нового теста поточного юзера (викладача). 
@@ -72,7 +72,7 @@ async def post_test_new(
     title: str = Form(...),
     body: str = Form(...),
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     
     questions: list[Question] = parse_test_body(body) #TODO verify
@@ -99,7 +99,7 @@ async def get_test_edit(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Редагування тесту.
@@ -117,7 +117,7 @@ async def post_test_edit(
     title: str = Form(...),
     body: str = Form(...),
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     test = db.get(Test, id)
     if not test:
@@ -143,7 +143,7 @@ async def get_test_del(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Видалення тесту.
@@ -162,7 +162,7 @@ async def post_test_del(
     id: int,
     request: Request,
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     test = db.get(Test, id)
 

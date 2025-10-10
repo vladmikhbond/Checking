@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.models.models import Test, Seance
-from app.routers.login_router import get_current_user
+from app.routers.login_router import get_current_tutor
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
 from ..models.utils import str_to_time, time_to_str
@@ -25,17 +25,11 @@ router = APIRouter()
 async def get_seance_list(
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Усі сеанси поточного юзера (викладача).
-    """
-    # return the login page with error message
-    if user.role != "tutor":
-        return templates.TemplateResponse(
-            "../login/login.html", 
-            {"request": request, "error": user.role})
-        
+    """       
     all_seances = db.query(Seance).all()
 
     seances = [s for s in all_seances if s.username == user.username ] 
@@ -47,7 +41,7 @@ async def get_seance_list(
 async def get_seance_new(
     request: Request,
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Створення нового сеансу поточного юзера (викладача). 
@@ -70,7 +64,7 @@ async def post_seance_new(
     open_minutes: int = Form(...),
     stud_filter: str = Form(...),
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     seance = Seance(
         test_id = test_id,
@@ -99,7 +93,7 @@ async def get_seance_edit(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Редагування сеансу.
@@ -122,7 +116,7 @@ async def post_seance_edit(
     open_minutes: int = Form(...),
     stud_filter: str = Form(...),
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     seance = db.get(Seance, id)
     if not seance:
@@ -144,7 +138,7 @@ async def get_seance_del(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Видалення сеансу.
@@ -160,7 +154,7 @@ async def post_seance_del(
     id: int,
     request: Request,
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     seance = db.get(Seance, id)
     db.delete(seance)

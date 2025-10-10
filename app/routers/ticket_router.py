@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from ..models.models import Test, Seance, Ticket
-from app.routers.login_router import get_current_user
+from app.routers.login_router import get_current_tutor
 from ..dal import get_db  # Функція для отримання сесії БД
 from ..models.pss_models import User
 from ..models.utils import test_result
@@ -26,17 +26,11 @@ async def get_ticket_list(
     seance_id:int,
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Список тікетів певного сеансу.
     """
-    # return the login page with error message
-    if user.role != "tutor":
-        return templates.TemplateResponse(
-            "../login/login.html", 
-            {"request": request, "error": user.role})
-        
     seance = db.get(Seance, seance_id)    
     return templates.TemplateResponse("ticket/list.html", {"request": request, "seance": seance})
 
@@ -47,17 +41,11 @@ async def get_ticket_del(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Видалення тікету.
     """
-    # return the login page with error message
-    if user.role != "tutor":
-        return templates.TemplateResponse(
-            "../login/login.html", 
-            {"request": request, "error": user.role})
-
     ticket = db.get(Ticket, id)
     if not ticket:
         return RedirectResponse(url=f"/ticket/list/{ticket.seance_id}", status_code=302)
@@ -70,7 +58,7 @@ async def post_ticket_del(
     id: int,
     request: Request,
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     ticket = db.get(Ticket, id)
     db.delete(ticket)
@@ -84,17 +72,11 @@ async def get_ticket_result(
     id: int, 
     request: Request, 
     db: Session = Depends(get_db),
-    user: User=Depends(get_current_user)
+    user: User=Depends(get_current_tutor)
 ):
     """ 
     Результат складання тесту.
     """
-    # return the login page with error message
-    if user.role != "tutor":
-        return templates.TemplateResponse(
-            "../login/login.html", 
-            {"request": request, "error": user.role})
-
     ticket = db.get(Ticket, id)
     if not ticket:
         return RedirectResponse(url=f"/ticket/list/{ticket.seance_id}", status_code=302)
