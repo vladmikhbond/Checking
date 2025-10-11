@@ -6,19 +6,20 @@
     
 <h2> {{ ticket.seance.title }} {{ ticket.username }} {{percentage}}%</h2>
 {% for r in results %}
+    {% set color = "green" if r.score() == 1 else "red" %} 
+    <div style="color: {{color}}">
+        <pre style="margin: 15px 0 5px 0"> {{r.quest_text}} </pre>
+        <div style="font: 12px italic"> Time: {{r.seconds}} sec </div>
 
-    <pre style="margin: 15px 0 5px 0"> {{r.quest_text}} </pre>
-    <div style="font: 12px italic"> Time: {{r.seconds}} sec </div>
-
-    {% for i in range(r.a_sign|length) %}
-        {% set kind = "radio" if r.quest_kind == "!" else "checkbox" %}
-        {% set checked_a = "checked" if r.a_sign[i] == "+" else "" %} 
-        {% set checked_u = "checked" if r.u_sign[i] == "+" else "" %} 
-        <div>
-        <input type="{{kind}}" {{checked_a}}> <input type="{{kind}}" {{checked_u}}> {{r.answers[i]}}
-        </div>
-    {% endfor%}
-
+        {% for i in range(r.a_sign|length) %}
+            {% set kind = "radio" if r.quest_kind == "!" else "checkbox" %}
+            {% set checked_a = "checked" if r.a_sign[i] == "+" else "" %} 
+            {% set checked_u = "checked" if r.u_sign[i] == "+" else "" %}         
+            <div>
+            <input type="{{kind}}" {{checked_a}}> <input type="{{kind}}" {{checked_u}}> {{r.answers[i]}}
+            </div>
+        {% endfor%}
+    </div> 
 {% endfor%}
 
 

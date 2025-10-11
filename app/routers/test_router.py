@@ -38,16 +38,8 @@ async def get_test_list(
 ):
     """ 
     Усі тести поточного юзера (викладача).
-    """
-    # # return the login page with error message
-    
-    # if user.role != "tutor":
-    #     return templates.TemplateResponse(
-    #         "../login/login.html", 
-    #         {"request": request, "error": user.role})
-        
+    """   
     all_tests = db.query(Test).all()
-
    
     tests = [t for t in all_tests if t.username == user.username ] 
     return templates.TemplateResponse("test/list.html", {"request": request, "tests": tests})
@@ -74,8 +66,7 @@ async def post_test_new(
     db: Session = Depends(get_db),
     user: User=Depends(get_current_tutor)
 ):
-    
-    questions: list[Question] = parse_test_body(body) #TODO verify
+    questions: list[Question] = parse_test_body(body, validation=True) 
     test = Test(
         title = title,
         username = user.username, 
@@ -131,7 +122,7 @@ async def post_test_edit(
         test.body = body  
         for q in test.questions:
             db.delete(q)
-        test.questions = parse_test_body(body)
+        test.questions = parse_test_body(body, validation=True) 
 
     db.commit()
     return RedirectResponse(url="/test/list", status_code=302)

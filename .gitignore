@@ -5,7 +5,7 @@ __pycache__/
 .mypy_cache/
 
 # VS Code
-.vscode/
+
 
 # Uvicorn logs
 *.pid

@@ -1,11 +1,24 @@
-
+from fastapi import HTTPException
 from ..models.models import Question
 import re
 
-def parse_test_body(string: str)->list[Question]:
+# from models import Question  # for unit testing
+
+VALIDATION=False
+
+def ass(x: bool, comment: str) : 
+    if not x: 
+        raise HTTPException(400, comment)
+
+def parse_test_body(string: str, validation=False)->list[Question]:
+    global VALIDATION
+    VALIDATION = validation
     RE = r"^=(.*)"
     arr = re.split(RE, string, flags=re.MULTILINE)
     arr = [x.strip() for x in arr if x.strip() != ""]
+    if VALIDATION: ######
+        ass(len(arr[0::2]) == len(arr[1::2]), "Wrong topic division")
+        
     pairs = zip(arr[0::2], arr[1::2])    # [(topicName, topicBody)]
     questions = []
     for name, body in pairs:
@@ -25,21 +38,21 @@ def parse_topic_body(name, body)->list[Question]:
    return [Question(topic=name, kind=t[0], text=t[1], answers=t[2]) for t in trios]
 
    
-def parse_question(kind, question) -> tuple[str, str, str]:
-   RE = r"^[^+^-]*"
-   match = re.match(RE, question, flags=re.MULTILINE)
-   text = question[0:match.span()[1]].strip()
-   answers = question[match.span()[1]::].strip()
-   return kind, text, answers
+def parse_question(kind, quest_body) -> tuple[str, str, str]:
+    RE = r"^[^+^-]*"
+    match = re.match(RE, quest_body, flags=re.MULTILINE)
+    text = quest_body[0:match.span()[1]].strip()
+    answers = quest_body[match.span()[1]::].strip()  # "+apple\n-table\n+cherry"
+    if VALIDATION: ######
+        # count of right answers
+        rights = sum(1 if line.startswith('+') else 0 for line in answers.splitlines())  
+        ass(kind=='!' and rights==1 or kind=='#', f"Kind Error: \n{quest_body}") 
+ 
+    return kind, text, answers
 
 
 # -------------------------- unit test ------------
-if (__name__ == "__main__"):
-    from models import Question
-    x = parse_test(T)
-    print(x)
-
-    T = """
+T = """
 
 =класи
 
@@ -83,4 +96,10 @@ class Point:
 +@abc.deleter
 
 """
+
+
+if (__name__ == "__main__"):
+    
+    quests = parse_test_body(T, validation=True)
+    print(len(quests))
 
