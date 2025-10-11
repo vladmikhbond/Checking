@@ -1,16 +1,16 @@
-{% extends "layout.html" %}
+{% extends "layout_student.html" %}
 
 {% block title %}{% endblock %}
 
 {% block content %}
     
-<h1>Відкрито для проходження</h1>
+<h1>Come On</h1>
 
 {% if seances and seances|length %}
-<ul>
+<ul class="emoji-bullets">
   
     {% for seance in seances %}
-    <li>
+    <li class="emoji-bullets">
       <a href="/check/run/{{seance.id}}">{{ seance.test.title }}-{{ seance.id }}</a>
     </li>
     {% endfor %}
@@ -18,7 +18,7 @@
 </ul>
 {% else %}
   <div>
-    Сеансів немає.
+    No sessions available.
   </div>
 {% endif %}
 

@@ -4,7 +4,7 @@
 
 {% block content %}
 
-    <h1>Видалення тесту "{{ test.title }}"</h1>
+    <h1>Delete test "{{ test.title }}"</h1>
     <form method="post" >
       <input type="hidden" name="id" value="{{ test.id }}" >
       <label>
@@ -18,8 +18,8 @@
       </label>
 
       <footer class="grid">
-        <button type="submit" >Видалити</button>
-        <a href="/test/list" role="button" class="secondary">Скасувати</a>
+        <button type="submit" >Delete</button>
+        <a href="/test/list" role="button" class="secondary">Cancel</a>
       </footer>      
     </form>
 {% endblock %}

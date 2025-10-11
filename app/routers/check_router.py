@@ -74,7 +74,7 @@ async def get_to_test(
         db.commit()
     # чи не прострочений тікет
     if ticket.seance_close_time < datetime.now():
-        vm = {"title": f"{seance.test.title} - {seance.id}", 
+        vm = {"title": f"{seance.title}", 
               "result": test_result(ticket.protocol, seance.test.questions),    ## ???
               "reason": "Час сплив."}
         return templates.TemplateResponse("check/stop.html", {"request": request, "vm":vm})
@@ -96,7 +96,7 @@ async def get_to_test(
     random.shuffle(answers)
 
     return templates.TemplateResponse("check/run.html", 
-        {"request": request, "question": question, "answers": answers})
+        {"request": request, "seance": seance, "question": question, "answers": answers})
 
 
 @router.post("/check/run/{seance_id}")
@@ -145,4 +145,4 @@ async def get_to_test(
     random.shuffle(answers)
 
     return templates.TemplateResponse("check/run.html", 
-        {"request": request, "question": question, "answers": answers})
+        {"request": request,  "seance": seance, "question": question, "answers": answers})

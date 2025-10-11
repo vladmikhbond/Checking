@@ -22,6 +22,7 @@ def str_to_time(s: str) -> datetime:
 
 class Result:
     quest_text: str
+    quest_kind: str
     u_sign: list[str]
     a_sign: list[str]
     answers: list[str]
@@ -43,6 +44,7 @@ class Result:
         self.seconds = int(m[2])
         self.focuse_lost = int(m[3])
         self.quest_text = quest.text
+        self.quest_kind = quest.kind
         self.answers = [a[1::] for a in ans_arr]
         pass
     

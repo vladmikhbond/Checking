@@ -7,17 +7,14 @@
 <h1>{{seance.title}}</h1>
 
 
-
 {% if seance.tickets and seance.tickets|length %}
 <table>
   <tbody>
     {% for ticket in seance.tickets %}
     <tr>
       <td>
-      <a href="/ticket/result/{{ticket.id}}">{{ ticket.username }}</a>
-        
+      <a href="/ticket/result/{{ticket.id}}">{{ ticket.username }}</a> 
       </td>
-      
       <td>
           <a href="/ticket/del/{{ticket.id}}">del</a>
       </td>
@@ -27,7 +24,7 @@
 </table>
 {% else %}
   <div>
-    Результатів немає.
+    No results.
   </div>
 {% endif %}
 

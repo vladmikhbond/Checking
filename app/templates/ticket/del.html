@@ -3,7 +3,7 @@
 {% block title %}{% endblock %}
 
 {% block content %}
-    <h1>Видалення тікету"{{ ticket.username }}"</h1>
+    <h1>Delete ticket {{ ticket.username }}</h1>
     <form method="post" >
       <label>
         Протокол
@@ -11,8 +11,8 @@
       </label>
 
       <footer class="grid">
-        <button type="submit" >Видалити</button>
-        <a href="/ticket/list" role="button" class="secondary">Скасувати</a>
+        <button type="submit" >Delete</button>
+        <a href="/ticket/list" role="button" class="secondary">Cancel</a>
       </footer>      
     </form>
 {% endblock %}

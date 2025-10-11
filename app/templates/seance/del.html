@@ -4,7 +4,7 @@
 
 {% block content %}
 
-    <h1>Видалення сеансу "{{ seance.test.title }}-{{ seance.id }}"</h1>
+    <h1>Delete "{{ seance.test.title }}-{{ seance.id }}"</h1>
     <form method="post" >
       <label>
         Open Time
@@ -21,8 +21,8 @@
         <input type="text" name="stud_filter" value="{{ seance.stud_filter }}" readonly>
       </label>
       <footer class="grid">
-        <button type="submit" >Видалити</button>
-        <a href="/seance/list" role="button" class="secondary">Скасувати</a>
+        <button type="submit" >Delete</button>
+        <a href="/seance/list" role="button" class="secondary">Cancel</a>
       </footer>      
     </form>
 {% endblock %}
